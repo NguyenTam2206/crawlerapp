@@ -57,7 +57,7 @@ export default {
         this.$api.Crawler_Post.createPost({
           payload: {
             url: this.url,
-            dest_categories: this.cateIds
+            dest_categories: this.cateIds.join(",")
           },
           onSuccess: res => {
             console.log(res);
