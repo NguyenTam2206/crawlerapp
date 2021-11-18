@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-app>
     <div class="app-bar">
       <v-container>
         <div class="app-name">Crawler App</div>
@@ -9,7 +9,7 @@
       <Alert />
       <nuxt />
     </v-container>
-  </div>
+  </v-app>
 </template>
 
 <script>

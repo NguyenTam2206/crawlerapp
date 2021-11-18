@@ -13,7 +13,7 @@
     ></v-select>
     <v-text-field v-model="url" label="Đường dẫn bài viết"></v-text-field>
     <div class="submit-wrap">
-      <v-btn  color="#ffc0cb" @click="onSubmit">Submit</v-btn>
+      <v-btn color="#ffc0cb" @click="onSubmit">Submit</v-btn>
     </div>
   </div>
 </template>
@@ -24,7 +24,7 @@ export default {
     return {
       cateIds: [],
       url: "",
-      items: [],
+      items: []
       // loadingSubmit: false
     };
   },

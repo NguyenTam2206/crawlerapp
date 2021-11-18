@@ -8,7 +8,7 @@ export default axios => ({
   async createPost({ payload, onSuccess, onError }) {
     return await axios({
       url: `${process.env.baseAPI}/crawlContent`,
-      method: "GET",
+      method: "POST",
       params: deleteEmtyStringValue(payload)
     })
       .then(res => {
