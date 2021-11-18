@@ -1,19 +1,65 @@
 <template>
-  <div class="wraper">
-    <v-select
-      v-model="cateIds"
-      item-text="name"
-      item-value="id"
-      :items="items"
-      attach
-      chips
-      multiple
-      deletable-chips
-      label="Chọn danh mục"
-    ></v-select>
-    <v-text-field v-model="url" label="Đường dẫn bài viết"></v-text-field>
-    <div class="submit-wrap">
-      <v-btn color="#ffc0cb" @click="onSubmit">Submit</v-btn>
+  <div>
+    <div class="wraper">
+      <v-select
+        v-model="cateIds"
+        item-text="name"
+        item-value="id"
+        :items="items"
+        attach
+        chips
+        multiple
+        deletable-chips
+        label="Chọn danh mục"
+      ></v-select>
+      <v-combobox
+        v-model="urls"
+        :items="[]"
+        hide-selected
+        label="Nhập đường dẫn bài viết"
+        multiple
+        small-chips
+      >
+        <template v-slot:no-data>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>
+                Nhập đường dẫn và nhấn
+                <kbd>enter</kbd> để thêm đường dẫn
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+      </v-combobox>
+      <div class="submit-wrap">
+        <v-btn :loading="loadingSubmit" color="#ffc0cb" @click="onSubmit">Submit</v-btn>
+      </div>
+    </div>
+    <div class="table wraper" v-if="table.length">
+      <div class="close-btn" @click="table = []">X</div>
+      <v-simple-table style="background : #fff4f6">
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th class="text-left">Url</th>
+              <th class="text-left">Status</th>
+              <th class="text-left"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item,i) in table" :key="i">
+              <td>{{ item.url }}</td>
+              <td class="item-status" :style="`color : ${item.status.color}`">{{ item.status.text }}</td>
+              <td v-if="item.status.value !== 'success'">
+                <v-btn
+                  color="#ffc0cb"
+                  @click="onAction(item)"
+                >{{item.status.value === 'failed' ? 'Try Again' : 'Force Crawl'}}</v-btn>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
     </div>
   </div>
 </template>
@@ -24,8 +70,10 @@ export default {
     return {
       cateIds: [],
       url: "",
-      items: []
-      // loadingSubmit: false
+      urls: [],
+      items: [],
+      loadingSubmit: false,
+      table: []
     };
   },
   created() {
@@ -48,28 +96,115 @@ export default {
         }
       });
     },
-    onSubmit() {
-      if (!this.cateIds.length || !this.url) {
+    async onSubmit() {
+      if (!this.cateIds.length || !this.urls.length) {
         this.$alert("error", "Please fill required inputs");
       }
-      if (this.cateIds.length && this.url) {
-        // this.loadingSubmit = true;
-        this.$api.Crawler_Post.createPost({
-          payload: {
-            url: this.url,
-            dest_categories: this.cateIds.join(",")
-          },
-          onSuccess: res => {
-            console.log(res);
-            this.$alert("success", "Create Successed");
-            // this.loadingSubmit = false;
-            this.fetchCategoryList();
-          },
-          onError: err => {
-            this.$alert("error", "Create Failed");
-          }
+      if (this.cateIds.length && this.urls.length) {
+        this.loadingSubmit = true;
+        let temp = JSON.parse(JSON.stringify(this.urls));
+        temp = temp.map(t => {
+          return {
+            url: t,
+            status: {
+              text: "",
+              value: "",
+              color: ""
+            }
+          };
         });
+        await this.forLoop(temp);
+        console.log("4");
+        this.table = temp;
+        console.log("table", this.table);
+        this.fetchCategoryList();
+        this.urls = [];
+        this.loadingSubmit = false;
       }
+    },
+    async forLoop(temp) {
+      for (let i = 0; i < temp.length; i++) {
+        await this.$api.Crawler_Utils.checkUrl({
+          payload: {
+            check_url: temp[i].url
+          },
+          onSuccess: async res => {},
+          onError: err => {
+            this.handleFailItem(temp[i]);
+          }
+        })
+          .then(res => {
+            console.log("1");
+            // Url đã đc crawl trc đây
+            if (res.data) {
+              this.handleAlreadyDownloadItem(temp[i]);
+            }
+            return res;
+          })
+          .then(async res => {
+            console.log("2");
+            // Chưa từng crawl
+            if (!res.data) {
+              let resCreatePost = await this.createPost(
+                "group",
+                temp[i].url,
+                temp[i]
+              );
+              return resCreatePost;
+            }
+          })
+          .then(resCreatePost => {
+            //Crawl thành công
+            console.log("3");
+            if (resCreatePost) {
+              this.handleSuccessItem(temp[i]);
+            }
+          });
+      }
+    },
+    handleFailItem(item) {
+      item.status.text = "Crawl Thất Bại";
+      item.status.value = "failed";
+      item.status.color = "red";
+    },
+    handleAlreadyDownloadItem(item) {
+      item.status.text = "Đã Được Crawl";
+      item.status.value = "crawled before";
+      item.status.color = "orange";
+    },
+    handleSuccessItem(item) {
+      item.status.text = "Crawl Thành Công";
+      item.status.value = "success";
+      item.status.color = "green";
+    },
+    onAction(item) {
+      if (item.status.value === "failed") {
+        this.createPost("single", item.url);
+      }
+      if (item.status.value === "crawled before") {
+        this.createPost("single", item.url);
+      }
+    },
+    createPost(from, url, item) {
+      return this.$api.Crawler_Post.createPost({
+        payload: {
+          url,
+          dest_categories: this.cateIds.join(",")
+        },
+        onSuccess: res => {
+          if (from === "single") {
+            this.$alert("success", "Thành công");
+          }
+        },
+        onError: err => {
+          if (item) {
+            this.handleFailItem(item);
+          }
+          if (from === "single") {
+            this.$alert("error", "Thất bại");
+          }
+        }
+      });
     }
   }
 };
@@ -82,12 +217,27 @@ export default {
   padding: 30px;
 }
 .app-bar {
-  background: pink;
+  background: #ffc0cb;
 }
 .app-name {
   font-size: 25px;
 }
 .submit-wrap {
   text-align: right;
+}
+.table {
+  position: relative;
+}
+.close-btn {
+  position: absolute;
+  z-index: 1;
+  right: 0px;
+  top: 0px;
+  background: pink;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.item-status {
+  min-width: 150px;
 }
 </style>

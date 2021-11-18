@@ -5,10 +5,10 @@ import {
 } from "@/api/helper.js";
 
 export default axios => ({
-  async createPost({ payload, onSuccess, onError }) {
+  async checkUrl({ payload, onSuccess, onError }) {
     return await axios({
-      url: `${process.env.baseAPI}/crawlContent`,
-      method: "POST",
+      url: `${process.env.baseAPI}/checkUrl`,
+      method: "GET",
       params: deleteEmtyStringValue(payload)
     })
       .then(res => {
