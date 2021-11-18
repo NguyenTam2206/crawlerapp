@@ -13,7 +13,7 @@
     ></v-select>
     <v-text-field v-model="url" label="Đường dẫn bài viết"></v-text-field>
     <div class="submit-wrap">
-      <v-btn :loading="loadingSubmit" color="#ffc0cb" @click="onSubmit">Submit</v-btn>
+      <v-btn  color="#ffc0cb" @click="onSubmit">Submit</v-btn>
     </div>
   </div>
 </template>
@@ -25,7 +25,7 @@ export default {
       cateIds: [],
       url: "",
       items: [],
-      loadingSubmit: false
+      // loadingSubmit: false
     };
   },
   created() {
@@ -53,7 +53,7 @@ export default {
         this.$alert("error", "Please fill required inputs");
       }
       if (this.cateIds.length && this.url) {
-        this.loadingSubmit = true;
+        // this.loadingSubmit = true;
         this.$api.Crawler_Post.createPost({
           payload: {
             url: this.url,
@@ -62,7 +62,7 @@ export default {
           onSuccess: res => {
             console.log(res);
             this.$alert("success", "Create Successed");
-            this.loadingSubmit = false;
+            // this.loadingSubmit = false;
             this.fetchCategoryList();
           },
           onError: err => {
