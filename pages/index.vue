@@ -32,7 +32,7 @@
         </template>
       </v-combobox>
       <div class="submit-wrap">
-        <v-btn :loading="loadingSubmit" color="primary" class="black--text" @click="onSubmit">Submit</v-btn>
+        <v-btn :loading="loadingSubmit" color="primary" class="black--text" @click="onSubmit">Crawl</v-btn>
       </div>
     </div>
     <div class="table wraper" v-if="table.length">
@@ -61,11 +61,16 @@
         </template>
       </v-simple-table>
     </div>
+    <NewArticlesTable :key="keyCompNewArticlesTable" />
   </div>
 </template>
 
 <script>
+import NewArticlesTable from "@/components/NewArticlesTable";
 export default {
+  components: {
+    NewArticlesTable
+  },
   data() {
     return {
       cateIds: [],
@@ -73,7 +78,8 @@ export default {
       urls: [],
       items: [],
       loadingSubmit: false,
-      table: []
+      table: [],
+      keyCompNewArticlesTable: 1
     };
   },
   created() {
@@ -113,16 +119,17 @@ export default {
             }
           };
         });
-        await this.forLoop(temp);
+        await this.handleSubmit(temp);
         console.log("4");
         this.table = temp;
         console.log("table", this.table);
         this.fetchCategoryList();
+        this.keyCompNewArticlesTable++;
         this.urls = [];
         this.loadingSubmit = false;
       }
     },
-    async forLoop(temp) {
+    async handleSubmit(temp) {
       for (let i = 0; i < temp.length; i++) {
         await this.$api.Crawler_Utils.checkUrl({
           payload: {

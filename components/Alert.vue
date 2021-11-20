@@ -19,7 +19,7 @@ export default {
 
 <style>
 .custom-alert {
-  position: absolute !important;
+  position: fixed !important;
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
