@@ -32,12 +32,12 @@
         </template>
       </v-combobox>
       <div class="submit-wrap">
-        <v-btn :loading="loadingSubmit" color="#ffc0cb" @click="onSubmit">Submit</v-btn>
+        <v-btn :loading="loadingSubmit" color="primary" class="black--text" @click="onSubmit">Submit</v-btn>
       </div>
     </div>
     <div class="table wraper" v-if="table.length">
       <div class="close-btn" @click="table = []">X</div>
-      <v-simple-table style="background : #fff4f6">
+      <v-simple-table style="background : var(--secondary)">
         <template v-slot:default>
           <thead>
             <tr>
@@ -52,7 +52,7 @@
               <td class="item-status" :style="`color : ${item.status.color}`">{{ item.status.text }}</td>
               <td v-if="item.status.value !== 'success'">
                 <v-btn
-                  color="#ffc0cb"
+                  color="primary"
                   @click="onAction(item)"
                 >{{item.status.value === 'failed' ? 'Try Again' : 'Force Crawl'}}</v-btn>
               </td>
@@ -213,11 +213,11 @@ export default {
 <style scoped>
 .wraper {
   margin-top: 30px;
-  background: #fff4f6;
+  background: var(--secondary);
   padding: 30px;
 }
 .app-bar {
-  background: #ffc0cb;
+  background: var(--primary);
 }
 .app-name {
   font-size: 25px;

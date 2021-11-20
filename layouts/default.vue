@@ -22,7 +22,7 @@ export default {
 </script>
 <style scoped>
 .app-bar {
-  background: pink;
+  background: var(--primary);
 }
 .app-name {
   font-size: 25px;

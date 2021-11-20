@@ -1,3 +1,8 @@
+:root {
+  --primary: #ffc0cb;
+  --secondary: #fff4f6;
+}
+
 * {
   font-family: Arial, Helvetica, sans-serif
 }
