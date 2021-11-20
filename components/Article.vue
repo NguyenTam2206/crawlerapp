@@ -1,9 +1,9 @@
 <template>
-  <div class="mt-1 d-flex">
+  <div class="mt-1" :class="$device.isMobile ? '' : 'd-flex'">
     <div>
       <img class="article-img" :src="article.featuredMedia" alt />
     </div>
-    <div class="ml-2 font-weight-bold">{{article.title}}</div>
+    <div class="font-weight-bold" :class="$device.isMobile ? '' : 'ml-2'">{{article.title}}</div>
   </div>
 </template>
 
