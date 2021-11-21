@@ -70,7 +70,10 @@ export default {
       }).then(async res => {
         let articleList = res.data;
         await this.checkIsCrawled(articleList);
-        this.articleList = articleList;
+        let articleListCrawled = articleList.filter(e => e.isCrawled);
+        let articleListNotCrawled = articleList.filter(e => !e.isCrawled);
+
+        this.articleList = [...articleListNotCrawled, ...articleListCrawled];
         this.loading = false;
       });
     },
