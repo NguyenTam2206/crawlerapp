@@ -9,7 +9,7 @@
               <tr>
                 <th class="text-left">Article</th>
                 <th class="text-left">Link</th>
-                <th class="text-left">Copy</th>
+                <th class="text-left">Actions</th>
                 <th class="text-left">Status</th>
               </tr>
             </thead>
@@ -25,7 +25,28 @@
                   </div>
                 </td>
                 <td class="table-td-10">
-                  <v-icon small @click="onCopy(item.link)">mdi-content-copy</v-icon>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-icon
+                        small
+                        @click="onCopy(item.link)"
+                        v-bind="attrs"
+                        v-on="on"
+                      >mdi-content-copy</v-icon>
+                    </template>
+                    <span>Copy link</span>
+                  </v-tooltip>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-icon
+                        class="ml-2"
+                        @click="$emit('onImportLinkToInput', item.link)"
+                        v-bind="attrs"
+                        v-on="on"
+                      >mdi-import</v-icon>
+                    </template>
+                    <span>Enter link to input</span>
+                  </v-tooltip>
                 </td>
                 <td class="table-td-20">{{ item.isCrawled ? 'Đã Crawl' : 'Chưa Crawl' }}</td>
               </tr>
@@ -67,9 +88,9 @@ export default {
       await this.$api.Crawler_Utils.getNewArticles({
         onSuccess: res => {},
         onError: err => {}
-      }).then(async res => {
+      }).then(res => {
         let articleList = res.data;
-        await this.checkIsCrawled(articleList);
+        // await this.checkIsCrawled(articleList);
         let articleListCrawled = articleList.filter(e => e.isCrawled);
         let articleListNotCrawled = articleList.filter(e => !e.isCrawled);
 

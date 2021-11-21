@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="wraper">
-      <v-select
+      <!-- <v-select
         v-model="cateIds"
         item-text="name"
         item-value="id"
@@ -11,7 +11,19 @@
         multiple
         deletable-chips
         label="Chọn danh mục"
-      ></v-select>
+      ></v-select>-->
+      <div>Chọn danh mục:</div>
+      <v-row class="mb-4">
+        <v-col cols="12" md="6" class="my-0 py-0" v-for="(item,i) in items" :key="i">
+          <v-checkbox
+            :label="item.name"
+            :value="item.id"
+            v-model="cateIds"
+            color="primary"
+            hide-details
+          ></v-checkbox>
+        </v-col>
+      </v-row>
       <v-combobox
         v-model="urls"
         :items="[]"
@@ -61,7 +73,7 @@
         </template>
       </v-simple-table>
     </div>
-    <NewArticlesTable :key="keyCompNewArticlesTable" />
+    <NewArticlesTable :key="keyCompNewArticlesTable" @onImportLinkToInput="onImportLinkToInput" />
   </div>
 </template>
 
@@ -74,7 +86,6 @@ export default {
   data() {
     return {
       cateIds: [],
-      url: "",
       urls: [],
       items: [],
       loadingSubmit: false,
@@ -212,6 +223,17 @@ export default {
           }
         }
       });
+    },
+    onImportLinkToInput(link) {
+      this.urls.push(link);
+    }
+  },
+  watch: {
+    cateIds: {
+      deep: true,
+      handler(val) {
+        console.log(val);
+      }
     }
   }
 };
